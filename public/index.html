@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Desktop</title>
+
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/x-icon" href="https://loopback.io/favicon.ico">
+  <link rel="stylesheet" href="style.css">
+
+  <script>
+    function setupUploadForm() {
+      const formEle = document.getElementById('uploadForm');
+      formEle.onsubmit = async e =>  {
+        e.preventDefault();
+
+        const res = await fetch('/files', {
+          method: 'POST',
+          body: new FormData(formEle),
+        });
+
+        const body = await res.json();
+        console.log('Response from upload', body);
+        await fetchFiles();
+      }
+    }
+
+    async function fetchFiles() {
+      const res = await fetch('/files');
+      const files = await res.json();
+      console.log('Response from list', files);
+      const list = files.map(f => `<li><a href="/files/${f}">${f}</a></li>\n`,);
+
+      document.getElementById('fileList').innerHTML = list.join('');
+    }
+
+    async function init() {
+      setupUploadForm();
+      await fetchFiles();
+    }
+  </script>
+</head>
+
+<body onload="init()">
+
+  <div class="info">
+    <h1>File upload and Donwload</h1>
+
+    <div id="upload">
+      <h3>Upload files</h3>
+      <form id="uploadForm">
+        <label for="files">Select file</label>
+        <input type="file" name="files" id="files" multiple /> <br/> <br/>
+        <label for="note">Notes</label>
+        <input type="text" name="note" id="node" placeholder="Note aboute this file" /> </br><br/> <br/>
+
+        <input type="submit"/>
+      </form>
+    </div>
+
+    <div id="download">
+      <h3>Download files</h3>
+      <ul id="fileList"></ul>
+      <button onclick="fetchFiles()">Refresh</button>
+    </div>
+  </div>
+
+
+  <!--<div class="info">
+    <h1>fileupload</h1>
+    <p>Version 1.0.0</p>
+
+    <h3>OpenAPI spec: <a href="/openapi.json">/openapi.json</a></h3>
+    <h3>API Explorer: <a href="/explorer">/explorer</a></h3>
+  </div> -->
+
+  <footer class="power">
+  </footer>
+</body>
+
+</html>
